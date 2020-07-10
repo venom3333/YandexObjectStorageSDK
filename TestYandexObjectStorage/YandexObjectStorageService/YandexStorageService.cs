@@ -40,19 +40,21 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             _hostName = options.HostName;
         }
         
-        private HttpRequestMessage PrepareGetRequest()
+        private async Task<HttpRequestMessage> PrepareGetRequestAsync()
         {
            
             AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey);
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri($"{_protocol}://{_endpoint}/{_bucketName}"));
             DateTime value = DateTime.UtcNow;
-            
+
+            var hash = await AwsV4SignatureCalculator.GetPayloadHashAsync(requestMessage);
+
             requestMessage.Headers.Add("Host",_endpoint);
-            requestMessage.Headers.Add("X-Amz-Content-Sha256", AwsV4SignatureCalculator.GetPayloadHash(requestMessage));
+            requestMessage.Headers.Add("X-Amz-Content-Sha256", hash);
             requestMessage.Headers.Add("X-Amz-Date", $"{value:yyyyMMddTHHmmssZ}");
             
             string[] headers = {"host","x-amz-content-sha256", "x-amz-date" };
-            string signature = calculator.CalculateSignature(requestMessage, headers, value);
+            string signature = await calculator.CalculateSignatureAsync(requestMessage, headers, value);
             string authHeader = $"AWS4-HMAC-SHA256 Credential={_accessKey}/{value:yyyyMMdd}/us-east-1/s3/aws4_request, SignedHeaders={string.Join(";", headers)}, Signature={signature}";
             
             requestMessage.Headers.TryAddWithoutValidation("Authorization", authHeader);
@@ -60,17 +62,20 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             return requestMessage;
         }
 
-        private HttpRequestMessage PrepareGetRequest(string filename)
+        private async Task<HttpRequestMessage> PrepareGetRequestAsync(string filename)
         {
             AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey);
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{filename}"));
             DateTime value = DateTime.UtcNow;
+
+            var hash = await AwsV4SignatureCalculator.GetPayloadHashAsync(requestMessage);
+
             requestMessage.Headers.Add("Host",_endpoint);
-            requestMessage.Headers.Add("X-Amz-Content-Sha256", AwsV4SignatureCalculator.GetPayloadHash(requestMessage));
+            requestMessage.Headers.Add("X-Amz-Content-Sha256", hash);
             requestMessage.Headers.Add("X-Amz-Date", $"{value:yyyyMMddTHHmmssZ}");
             
             string[] headers = {"host","x-amz-content-sha256", "x-amz-date" };
-            string signature = calculator.CalculateSignature(requestMessage, headers, value);
+            string signature = await calculator.CalculateSignatureAsync(requestMessage, headers, value);
             string authHeader = $"AWS4-HMAC-SHA256 Credential={_accessKey}/{value:yyyyMMdd}/us-east-1/s3/aws4_request, SignedHeaders={string.Join(";", headers)}, Signature={signature}";
             
             requestMessage.Headers.TryAddWithoutValidation("Authorization", authHeader);
@@ -78,7 +83,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             return requestMessage;
         }
         
-        private HttpRequestMessage PreparePutRequest(Stream stream, string filename)
+        private async Task<HttpRequestMessage> PreparePutRequestAsync(Stream stream, string filename)
         {
             AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey);
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Put, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{filename}"));
@@ -87,12 +92,14 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             
             requestMessage.Content = content;
 
+            var hash = await AwsV4SignatureCalculator.GetPayloadHashAsync(requestMessage);
+
             requestMessage.Headers.Add("Host", _endpoint);
-            requestMessage.Headers.Add("X-Amz-Content-Sha256", AwsV4SignatureCalculator.GetPayloadHash(requestMessage));
+            requestMessage.Headers.Add("X-Amz-Content-Sha256", hash);
             requestMessage.Headers.Add("X-Amz-Date", $"{value:yyyyMMddTHHmmssZ}");
 
             string[] headers = { "host", "x-amz-content-sha256", "x-amz-date" };
-            string signature = calculator.CalculateSignature(requestMessage, headers, value);
+            string signature = await calculator.CalculateSignatureAsync(requestMessage, headers, value);
             string authHeader = $"AWS4-HMAC-SHA256 Credential={_accessKey}/{value:yyyyMMdd}/us-east-1/s3/aws4_request, SignedHeaders={string.Join(";", headers)}, Signature={signature}";
 
             requestMessage.Headers.TryAddWithoutValidation("Authorization", authHeader);
@@ -100,7 +107,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             return requestMessage;
         }
 
-        private HttpRequestMessage PreparePutRequest(byte[] byteArr, string filename)
+        private async Task<HttpRequestMessage> PreparePutRequestAsync(byte[] byteArr, string filename)
         {
             AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey);
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Put, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{filename}"));
@@ -109,12 +116,14 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
 
             requestMessage.Content = content;
 
+            var hash = await AwsV4SignatureCalculator.GetPayloadHashAsync(requestMessage);
+
             requestMessage.Headers.Add("Host", _endpoint);
-            requestMessage.Headers.Add("X-Amz-Content-Sha256", AwsV4SignatureCalculator.GetPayloadHash(requestMessage));
+            requestMessage.Headers.Add("X-Amz-Content-Sha256", hash);
             requestMessage.Headers.Add("X-Amz-Date", $"{value:yyyyMMddTHHmmssZ}");
 
             string[] headers = { "host", "x-amz-content-sha256", "x-amz-date" };
-            string signature = calculator.CalculateSignature(requestMessage, headers, value);
+            string signature = await calculator.CalculateSignatureAsync(requestMessage, headers, value);
             string authHeader = $"AWS4-HMAC-SHA256 Credential={_accessKey}/{value:yyyyMMdd}/us-east-1/s3/aws4_request, SignedHeaders={string.Join(";", headers)}, Signature={signature}";
 
             requestMessage.Headers.TryAddWithoutValidation("Authorization", authHeader);
@@ -122,17 +131,20 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             return requestMessage;
         }
 
-        private HttpRequestMessage PrepareDeleteRequest(string storageFileName)
+        private async Task<HttpRequestMessage> PrepareDeleteRequestAsync(string storageFileName)
         {
             AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey);
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Delete, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{storageFileName}"));
             DateTime value = DateTime.UtcNow;
+
+            var hash = await AwsV4SignatureCalculator.GetPayloadHashAsync(requestMessage);
+
             requestMessage.Headers.Add("Host", _endpoint);
-            requestMessage.Headers.Add("X-Amz-Content-Sha256", AwsV4SignatureCalculator.GetPayloadHash(requestMessage));
+            requestMessage.Headers.Add("X-Amz-Content-Sha256", hash);
             requestMessage.Headers.Add("X-Amz-Date", $"{value:yyyyMMddTHHmmssZ}");
 
             string[] headers = { "host", "x-amz-content-sha256", "x-amz-date" };
-            string signature = calculator.CalculateSignature(requestMessage, headers, value);
+            string signature = await calculator.CalculateSignatureAsync(requestMessage, headers, value);
             string authHeader = $"AWS4-HMAC-SHA256 Credential={_accessKey}/{value:yyyyMMdd}/us-east-1/s3/aws4_request, SignedHeaders={string.Join(";", headers)}, Signature={signature}";
 
             requestMessage.Headers.TryAddWithoutValidation("Authorization", authHeader);
@@ -147,7 +159,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         /// <returns>Retruns true if all credentials correct</returns>
         public async Task<bool> TryGetAsync()
         {
-            var requestMessage = PrepareGetRequest();
+            var requestMessage = await PrepareGetRequestAsync();
             
             using (HttpClient client = new HttpClient())
             {
@@ -163,14 +175,16 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             }
         }
 
-        
-        
-        
+        /// <summary>
+        /// Returns object as byte array
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
         public async Task<byte[]> GetAsByteArrayAsync(string filename)
         {
             var formatedPath = FormatePath(filename);
             
-            var requestMessage = PrepareGetRequest(formatedPath);
+            var requestMessage = await PrepareGetRequestAsync(formatedPath);
             
             using (HttpClient client = new HttpClient())
             {
@@ -188,7 +202,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         }
         
         /// <summary>
-        /// Return object as Stream
+        /// Returns object as Stream
         /// </summary>
         /// <param name="filename">full URL or filename if it is in root folder</param>
         /// <returns>Stream</returns>
@@ -197,11 +211,11 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         {
             var formatedPath = FormatePath(filename);
             
-            var requestMessage = PrepareGetRequest(formatedPath);
+            var requestMessage = await PrepareGetRequestAsync(formatedPath);
             
             using (HttpClient client = new HttpClient())
             {
-                var response = await client.SendAsync(requestMessage);
+                var response = await client.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -212,11 +226,17 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             }
         }
         
+        /// <summary>
+        /// Puts object to the storage
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="filename"></param>
+        /// <returns>Direct link to an object</returns>
         public async Task<string> PutObjectAsync(Stream stream, string filename)
         {
             var formatedPath = FormatePath(filename);
             
-            var requestMessage = PreparePutRequest(stream, formatedPath);
+            var requestMessage = await PreparePutRequestAsync(stream, formatedPath);
             
             using (HttpClient client = new HttpClient())
             {
@@ -233,11 +253,17 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             }
         }
 
+        /// <summary>
+        /// Puts object to the storage
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="filename"></param>
+        /// <returns>Direct link to an object</returns>
         public async Task<string> PutObjectAsync(byte[] byteArr, string filename)
         {
             var formatedPath = FormatePath(filename);
 
-            var requestMessage = PreparePutRequest(byteArr, formatedPath);
+            var requestMessage = await PreparePutRequestAsync(byteArr, formatedPath);
 
             using (HttpClient client = new HttpClient())
             {
@@ -260,11 +286,16 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             return path.RemoveProtocol(_protocol).RemoveEndPoint(_endpoint).RemoveBucket(_bucketName);
         }
 
+        /// <summary>
+        /// Delete object from the storage
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns>Success flag</returns>
         public async Task<bool> DeleteObjectAsync(string filename)
         {
             var formatedPath = FormatePath(filename);
             
-            var requestMessage = PrepareDeleteRequest(formatedPath);
+            var requestMessage = await PrepareDeleteRequestAsync(formatedPath);
 
             using (HttpClient client = new HttpClient())
             {

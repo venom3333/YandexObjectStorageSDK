@@ -19,22 +19,35 @@ namespace TestYandexObjectStorage
             var isSuccess = await yandexService.TryGetAsync();
             Console.WriteLine(isSuccess);
 
-            var filename = "test_file5.zzz";
-            var filePath = Path.Combine(@"K:\FTP\Video", filename);
-            //var downloadPath = @"https://storage.yandexcloud.net/cpk-bucket-storage/84b6e246-0a76-4d43-ab84-73d71cc6d204_2020_07_10_11_40_45";
-            //var downloadPath3 = @"https://storage.yandexcloud.net/cpk-bucket-storage/4f18f8f3-9096-4384-85a8-1fd42f084588_2020_07_10_11_51_24";
+            // UPLOAD TEST
+            //var filename = "test_file2.mp4";
+            //var filePath = Path.Combine(@"K:\FTP\Video", filename);
+            //using (FileStream fs = new FileStream(filePath, FileMode.Open))
+            //{
+            //    var fileGuid = $"{Guid.NewGuid()}_{filename}";
+            //    var sss = await yandexService.PutObjectAsync(fs, fileGuid);
+            //    Console.WriteLine(sss);
+            //}
 
-            using (FileStream fs = new FileStream(filePath, FileMode.Open))
-            {
-                var fileGuid = $"{Guid.NewGuid()}_{filename}";
-                var sss = await yandexService.PutObjectAsync(fs, fileGuid);
-                Console.WriteLine(sss);
-            }
 
-            //var result = await yandexService.GetAsStreamAsync(downloadPath3);
-            //using FileStream fsDownload = File.Create("test_file.mp4");
-            //await result.CopyToAsync(fsDownload);
-            Console.ReadKey();
+            // DOWNLOAD TEST
+            //var downloadFileName = "00035f95-d708-4aae-ba4c-7939c5c19873_test_file2.mp4";
+            //var downloadUri = new UriBuilder(YandexStorageDefaults.Protocol, YandexStorageDefaults.EndPoint)
+            //{
+            //    Path = Path.Combine(bucket, downloadFileName)
+            //};
+
+
+            //using (FileStream fsDownload = File.Create("test_file.mp4"))
+            //{
+            //    var result = await yandexService.GetAsStreamAsync(downloadUri.ToString());
+            //    await result.CopyToAsync(fsDownload);
+            //}
+
+            // DELETE TEST
+        //    var deleteResult = await yandexService.DeleteObjectAsync(downloadFileName);
+        //    Console.WriteLine(deleteResult);
+        //    Console.ReadKey();
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
@@ -36,11 +37,11 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         /// <param name="signedHeaders">Canonical headers that are a part of a signing process</param>
         /// <param name="requestDate">Date and time when request takes place</param>
         /// <returns>Signature</returns>
-        public string CalculateSignature(HttpRequestMessage request, string[] signedHeaders, DateTime requestDate)
+        public async Task<string> CalculateSignatureAsync(HttpRequestMessage request, string[] signedHeaders, DateTime requestDate)
         {
             signedHeaders = signedHeaders.Select(x => x.Trim().ToLowerInvariant()).OrderBy(x => x).ToArray();
 
-            var canonicalRequest = GetCanonicalRequest(request, signedHeaders);
+            var canonicalRequest = await GetCanonicalRequestAsync(request, signedHeaders);
             var stringToSign = GetStringToSign(requestDate, canonicalRequest);
             return GetSignature(requestDate, stringToSign);
         }
@@ -51,7 +52,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         /// <param name="request"></param>
         /// <param name="signedHeaders"></param>
         /// <returns></returns>
-        private static string GetCanonicalRequest(HttpRequestMessage request, string[] signedHeaders)
+        private async static Task<string> GetCanonicalRequestAsync(HttpRequestMessage request, string[] signedHeaders)
         {
             var canonicalRequest = new StringBuilder();
             canonicalRequest.AppendFormat("{0}\n", request.Method.Method);
@@ -59,7 +60,8 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             canonicalRequest.AppendFormat("{0}\n", GetCanonicalQueryParameters(QueryHelpers.ParseQuery(request.RequestUri.Query)));
             canonicalRequest.AppendFormat("{0}\n", GetCanonicalHeaders(request, signedHeaders));
             canonicalRequest.AppendFormat("{0}\n", String.Join(";", signedHeaders));
-            canonicalRequest.Append(GetPayloadHash(request));
+            var hash = await GetPayloadHashAsync(request);
+            canonicalRequest.Append(hash);
             return canonicalRequest.ToString();
         }
 
@@ -104,23 +106,23 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             return canonicalHeaders.ToString();
         }
 
-        public static string GetPayloadHash(HttpRequestMessage request)
+        public async static Task<string> GetPayloadHashAsync(HttpRequestMessage request)
         {
             if (request.Content is ByteArrayContent || request.Content is MultipartContent)
             {
-                var bytes = request.Content.ReadAsByteArrayAsync().Result;
+                var bytes = await request.Content.ReadAsByteArrayAsync();
                 return Utils.ToHex(Utils.Hash(bytes));
             }
             else if (request.Content is StreamContent)
             {
-                var stream = request.Content.ReadAsStreamAsync().Result;
+                var stream = await request.Content.ReadAsStreamAsync();
                 var hash = Utils.Hash(stream);
                 stream.Position = 0;
                 var result = Utils.ToHex(hash);
                 return result;
             }
 
-            var payload = request.Content != null ? request.Content.ReadAsStringAsync().Result : "";
+            var payload = request.Content != null ? await request.Content.ReadAsStringAsync() : "";
             return Utils.ToHex(Utils.Hash(payload));
         }
 
