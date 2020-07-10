@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="YandexObjectStorageService\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="YandexObjectStorageService\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="YandexObjectStorageService\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="YandexObjectStorageService\YandexObjectStorageService.csproj" />
+  </ItemGroup>
+
+</Project>
