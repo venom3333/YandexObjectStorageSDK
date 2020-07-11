@@ -219,11 +219,8 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey);
             string signature = calculator.CalculateSignatureAsync(requestMessage, headers, requestDateTime, true).Result;
 
-            queryParams.AppendFormat("&{0}={1}", AwsV4SignatureCalculator.X_Amz_Signature, UrlHelper.UrlEncode(signature));
-
-
             var urlBuilder = new StringBuilder(endpointUri.ToString());
-            urlBuilder.AppendFormat("?{0}", queryParams.ToString());
+            urlBuilder.AppendFormat("&{0}={1}", AwsV4SignatureCalculator.X_Amz_Signature, UrlHelper.UrlEncode(signature));
             var presignedUrl = urlBuilder.ToString();
 
             return presignedUrl;
