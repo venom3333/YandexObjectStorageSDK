@@ -15,8 +15,19 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
 {
     public class AwsV4SignatureCalculator
     {
-        private const string Iso8601DateTimeFormat = "yyyyMMddTHHmmssZ";
-        private const string Iso8601DateFormat = "yyyyMMdd";
+        public const string Iso8601DateTimeFormat = "yyyyMMddTHHmmssZ";
+        public const string Iso8601DateFormat = "yyyyMMdd";
+
+        // some common x-amz-* parameters
+        public const string X_Amz_Algorithm = "X-Amz-Algorithm";
+        public const string X_Amz_Credential = "X-Amz-Credential";
+        public const string X_Amz_SignedHeaders = "X-Amz-SignedHeaders";
+        public const string X_Amz_Date = "X-Amz-Date";
+        public const string X_Amz_Signature = "X-Amz-Signature";
+        public const string X_Amz_Expires = "X-Amz-Expires";
+        public const string X_Amz_Content_SHA256 = "X-Amz-Content-SHA256";
+        public const string X_Amz_Decoded_Content_Length = "X-Amz-Decoded-Content-Length";
+        public const string X_Amz_Meta_UUID = "X-Amz-Meta-UUID";
 
         private readonly string _awsSecretKey;
         private readonly string _service;
@@ -37,11 +48,11 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         /// <param name="signedHeaders">Canonical headers that are a part of a signing process</param>
         /// <param name="requestDate">Date and time when request takes place</param>
         /// <returns>Signature</returns>
-        public async Task<string> CalculateSignatureAsync(HttpRequestMessage request, string[] signedHeaders, DateTime requestDate)
+        public async Task<string> CalculateSignatureAsync(HttpRequestMessage request, string[] signedHeaders, DateTime requestDate, bool forPresignedUrl = false)
         {
             signedHeaders = signedHeaders.Select(x => x.Trim().ToLowerInvariant()).OrderBy(x => x).ToArray();
 
-            var canonicalRequest = await GetCanonicalRequestAsync(request, signedHeaders);
+            var canonicalRequest = await GetCanonicalRequestAsync(request, signedHeaders, forPresignedUrl);
             var stringToSign = GetStringToSign(requestDate, canonicalRequest);
             return GetSignature(requestDate, stringToSign);
         }
@@ -52,7 +63,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         /// <param name="request"></param>
         /// <param name="signedHeaders"></param>
         /// <returns></returns>
-        private async static Task<string> GetCanonicalRequestAsync(HttpRequestMessage request, string[] signedHeaders)
+        public async static Task<string> GetCanonicalRequestAsync(HttpRequestMessage request, string[] signedHeaders, bool forPresignedUrl = false)
         {
             var canonicalRequest = new StringBuilder();
             canonicalRequest.AppendFormat("{0}\n", request.Method.Method);
@@ -60,8 +71,11 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             canonicalRequest.AppendFormat("{0}\n", GetCanonicalQueryParameters(QueryHelpers.ParseQuery(request.RequestUri.Query)));
             canonicalRequest.AppendFormat("{0}\n", GetCanonicalHeaders(request, signedHeaders));
             canonicalRequest.AppendFormat("{0}\n", String.Join(";", signedHeaders));
-            var hash = await GetPayloadHashAsync(request);
+
+            string hash = forPresignedUrl? "UNSIGNED-PAYLOAD" : await GetPayloadHashAsync(request);
+
             canonicalRequest.Append(hash);
+
             return canonicalRequest.ToString();
         }
 

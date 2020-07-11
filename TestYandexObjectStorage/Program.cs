@@ -19,9 +19,19 @@ namespace TestYandexObjectStorage
             var isSuccess = await yandexService.TryGetAsync();
             Console.WriteLine(isSuccess);
 
+            // for upload
+            var filename = "test_file2.mp4";
+            var filePath = Path.Combine(@"K:\FTP\Video", filename);
+
+            // for download
+            var downloadFileName = "b8229776-4314-4e30-a1fb-9fe6c9b2282c_2020_07_10_05_32_30";
+            var downloadUri = new UriBuilder(YandexStorageDefaults.Protocol, YandexStorageDefaults.EndPoint)
+            {
+                Path = Path.Combine(bucket, downloadFileName)
+            };
+
+
             // UPLOAD TEST
-            //var filename = "test_file2.mp4";
-            //var filePath = Path.Combine(@"K:\FTP\Video", filename);
             //using (FileStream fs = new FileStream(filePath, FileMode.Open))
             //{
             //    var fileGuid = $"{Guid.NewGuid()}_{filename}";
@@ -31,13 +41,6 @@ namespace TestYandexObjectStorage
 
 
             // DOWNLOAD TEST
-            //var downloadFileName = "00035f95-d708-4aae-ba4c-7939c5c19873_test_file2.mp4";
-            //var downloadUri = new UriBuilder(YandexStorageDefaults.Protocol, YandexStorageDefaults.EndPoint)
-            //{
-            //    Path = Path.Combine(bucket, downloadFileName)
-            //};
-
-
             //using (FileStream fsDownload = File.Create("test_file.mp4"))
             //{
             //    var result = await yandexService.GetAsStreamAsync(downloadUri.ToString());
@@ -45,9 +48,14 @@ namespace TestYandexObjectStorage
             //}
 
             // DELETE TEST
-        //    var deleteResult = await yandexService.DeleteObjectAsync(downloadFileName);
-        //    Console.WriteLine(deleteResult);
-        //    Console.ReadKey();
+            //    var deleteResult = await yandexService.DeleteObjectAsync(downloadFileName);
+            //  Console.WriteLine(deleteResult);
+
+            // PRESIGNED URL TEST
+            var presignedUrl = yandexService.GetPresignedUrlAsync(downloadUri.ToString(), TimeSpan.FromHours(1));
+            Console.WriteLine(presignedUrl);
+
+            Console.ReadKey();
         }
     }
 }
