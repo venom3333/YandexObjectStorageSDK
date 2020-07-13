@@ -20,6 +20,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             Region = section.GetSection("Region")?.Value ?? YandexStorageDefaults.Region;
             Endpoint = section.GetSection("Endpoint")?.Value ?? YandexStorageDefaults.Endpoint;
             Service = section.GetSection("Service")?.Value ?? YandexStorageDefaults.Service;
+            Service = section.GetSection("SupPath")?.Value ?? YandexStorageDefaults.SupPath;
         }
         
         /// <summary>
@@ -35,6 +36,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         public string Region { get; set; } = YandexStorageDefaults.Region;
         public string Endpoint { get; set; } = YandexStorageDefaults.Endpoint;
         public string Service { get; set; } = YandexStorageDefaults.Service;
+        public string SubPath { get; set; } = YandexStorageDefaults.SupPath;
         
         /// <summary>
         /// https://cloud.yandex.ru/docs/storage/s3/

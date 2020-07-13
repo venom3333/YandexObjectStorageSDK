@@ -21,6 +21,12 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             return regex.Replace(path, $"",1);
         }
 
+        public static string RemoveSubPath(this string path, string subPath)
+        {
+            var regex = new Regex(Regex.Escape($"{subPath}/"));
+            return regex.Replace(path, $"", 1);
+        }
+
         public static int IndexOfFile(this string path)
         {
             if (string.IsNullOrWhiteSpace(path)) throw new ArgumentNullException(nameof(path));

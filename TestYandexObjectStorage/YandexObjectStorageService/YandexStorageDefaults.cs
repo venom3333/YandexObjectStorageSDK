@@ -6,5 +6,6 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         public const string Protocol = "https";
         public const string Endpoint = "storage.yandexcloud.net";
         public const string Service = "s3";
+        public const string SupPath = "uploads";
     };
 }

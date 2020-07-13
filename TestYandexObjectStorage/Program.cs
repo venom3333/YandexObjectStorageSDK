@@ -12,8 +12,9 @@ namespace TestYandexObjectStorage
             var bucket = "cpk-bucket-storage";
             var accessKey = "JmT-qmYIKGT4KFJXUZtB";
             var secretKey = "Y9H16rM5lga4yG8-kqyByQDv2VkPpIH-0w8OE6Tp";
+            var subPath = "cpk_development";
 
-            var yandex = new YandexStorageOptions() { BucketName = bucket, AccessKey = accessKey, SecretKey = secretKey };
+            var yandex = new YandexStorageOptions() { BucketName = bucket, AccessKey = accessKey, SecretKey = secretKey, SubPath = subPath };
             var yandexService = yandex.CreateYandexObjectService();
 
             var isSuccess = await yandexService.TryGetAsync();

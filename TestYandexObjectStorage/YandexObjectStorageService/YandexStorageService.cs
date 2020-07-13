@@ -22,6 +22,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         private readonly string _secretKey;
         private readonly string _hostName;
         private readonly string _service;
+        private readonly string _supPath;
 
         public YandexStorageService(IOptions<YandexStorageOptions> options)
         {
@@ -35,6 +36,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             _secretKey = yandexStorageOptions.SecretKey;
             _hostName = yandexStorageOptions.HostName;
             _service = yandexStorageOptions.Service;
+            _supPath = yandexStorageOptions.SubPath;
         }
 
         public YandexStorageService(YandexStorageOptions options)
@@ -47,6 +49,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             _secretKey = options.SecretKey;
             _hostName = options.HostName;
             _service = options.Service;
+            _supPath = options.SubPath;
         }
 
         private async Task<HttpRequestMessage> PrepareGetRequestAsync()
@@ -74,7 +77,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         private async Task<HttpRequestMessage> PrepareGetRequestAsync(string filename)
         {
             AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey, _service, _region);
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{filename}"));
+            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{_supPath}/{filename}"));
             DateTime value = DateTime.UtcNow;
 
             var hash = await AwsV4SignatureCalculator.GetPayloadHashAsync(requestMessage);
@@ -95,7 +98,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         private async Task<HttpRequestMessage> PreparePutRequestAsync(Stream stream, string filename)
         {
             AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey, _service, _region);
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Put, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{filename}"));
+            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Put, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{_supPath}/{filename}"));
             DateTime value = DateTime.UtcNow;
             StreamContent content = new StreamContent(stream);
 
@@ -119,7 +122,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         private async Task<HttpRequestMessage> PreparePutRequestAsync(byte[] byteArr, string filename)
         {
             AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey, _service, _region);
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Put, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{filename}"));
+            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Put, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{_supPath}/{filename}"));
             DateTime value = DateTime.UtcNow;
             ByteArrayContent content = new ByteArrayContent(byteArr);
 
@@ -140,10 +143,10 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             return requestMessage;
         }
 
-        private async Task<HttpRequestMessage> PrepareDeleteRequestAsync(string storageFileName)
+        private async Task<HttpRequestMessage> PrepareDeleteRequestAsync(string filename)
         {
             AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey, _service, _region);
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Delete, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{storageFileName}"));
+            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Delete, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{_supPath}/{filename}"));
             DateTime value = DateTime.UtcNow;
 
             var hash = await AwsV4SignatureCalculator.GetPayloadHashAsync(requestMessage);
@@ -218,7 +221,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             queryParams.AppendFormat("&{0}={1}", AwsV4SignatureCalculator.X_Amz_SignedHeaders, UrlHelper.UrlEncode("host"));
 
 
-            var endpointUri = new UriBuilder($"{_protocol}://{_endpoint}/{_bucketName}/{formatedPath}") { Query = queryParams.ToString() };
+            var endpointUri = new UriBuilder($"{_protocol}://{_endpoint}/{_bucketName}/{_supPath}/{formatedPath}") { Query = queryParams.ToString() };
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, endpointUri.Uri);
             requestMessage.Headers.Add("Host", _endpoint);
 
@@ -343,7 +346,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
 
         private string FormatePath(string path)
         {
-            return path.RemoveProtocol(_protocol).RemoveEndPoint(_endpoint).RemoveBucket(_bucketName);
+            return path.RemoveProtocol(_protocol).RemoveEndPoint(_endpoint).RemoveBucket(_bucketName).RemoveSubPath(_supPath);
         }
 
         /// <summary>
@@ -375,7 +378,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
 
         private string GetObjectUri(string filename)
         {
-            return $"{_hostName}/{filename}";
+            return $"{_hostName}/{_supPath}/{filename}";
         }
     }
 }
