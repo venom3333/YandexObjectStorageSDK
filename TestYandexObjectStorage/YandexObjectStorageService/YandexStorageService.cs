@@ -16,11 +16,12 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
     {
         private readonly string _protocol;
         private readonly string _bucketName;
-        private readonly string _location;
+        private readonly string _region;
         private readonly string _endpoint;
         private readonly string _accessKey;
         private readonly string _secretKey;
         private readonly string _hostName;
+        private readonly string _service;
 
         public YandexStorageService(IOptions<YandexStorageOptions> options)
         {
@@ -28,28 +29,30 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
 
             _protocol = yandexStorageOptions.Protocol;
             _bucketName = yandexStorageOptions.BucketName;
-            _location = yandexStorageOptions.Location;
+            _region = yandexStorageOptions.Region;
             _endpoint = yandexStorageOptions.Endpoint;
             _accessKey = yandexStorageOptions.AccessKey;
             _secretKey = yandexStorageOptions.SecretKey;
             _hostName = yandexStorageOptions.HostName;
+            _service = yandexStorageOptions.Service;
         }
 
         public YandexStorageService(YandexStorageOptions options)
         {
             _protocol = options.Protocol;
             _bucketName = options.BucketName;
-            _location = options.Location;
+            _region = options.Region;
             _endpoint = options.Endpoint;
             _accessKey = options.AccessKey;
             _secretKey = options.SecretKey;
             _hostName = options.HostName;
+            _service = options.Service;
         }
 
         private async Task<HttpRequestMessage> PrepareGetRequestAsync()
         {
 
-            AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey);
+            AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey, _service, _region);
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri($"{_protocol}://{_endpoint}/{_bucketName}"));
             DateTime value = DateTime.UtcNow;
 
@@ -70,7 +73,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
 
         private async Task<HttpRequestMessage> PrepareGetRequestAsync(string filename)
         {
-            AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey);
+            AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey, _service, _region);
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{filename}"));
             DateTime value = DateTime.UtcNow;
 
@@ -91,7 +94,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
 
         private async Task<HttpRequestMessage> PreparePutRequestAsync(Stream stream, string filename)
         {
-            AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey);
+            AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey, _service, _region);
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Put, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{filename}"));
             DateTime value = DateTime.UtcNow;
             StreamContent content = new StreamContent(stream);
@@ -115,7 +118,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
 
         private async Task<HttpRequestMessage> PreparePutRequestAsync(byte[] byteArr, string filename)
         {
-            AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey);
+            AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey, _service, _region);
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Put, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{filename}"));
             DateTime value = DateTime.UtcNow;
             ByteArrayContent content = new ByteArrayContent(byteArr);
@@ -139,7 +142,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
 
         private async Task<HttpRequestMessage> PrepareDeleteRequestAsync(string storageFileName)
         {
-            AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey);
+            AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey, _service, _region);
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Delete, new Uri($"{_protocol}://{_endpoint}/{_bucketName}/{storageFileName}"));
             DateTime value = DateTime.UtcNow;
 
@@ -200,10 +203,16 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
 
             var requestDateTime = DateTime.UtcNow;
             var dateTimeStamp = requestDateTime.ToString(AwsV4SignatureCalculator.Iso8601DateTimeFormat, CultureInfo.InvariantCulture);
+            var requestDateTimeStamp = requestDateTime.ToString(AwsV4SignatureCalculator.Iso8601DateFormat, CultureInfo.InvariantCulture);
 
             var queryParams = new StringBuilder();
             queryParams.AppendFormat("{0}={1}", AwsV4SignatureCalculator.X_Amz_Algorithm, UrlHelper.UrlEncode("AWS4-HMAC-SHA256"));
-            queryParams.AppendFormat("&{0}={1}", AwsV4SignatureCalculator.X_Amz_Credential, UrlHelper.UrlEncode($"{_accessKey}/{requestDateTime:yyyyMMdd}/{YandexStorageDefaults.Location}/{YandexStorageDefaults.Service}/aws4_request"));
+
+            queryParams.AppendFormat(
+                "&{0}={1}",
+                AwsV4SignatureCalculator.X_Amz_Credential,
+                UrlHelper.UrlEncode($"{_accessKey}/{requestDateTimeStamp}/{_region}/{_service}/aws4_request"));
+
             queryParams.AppendFormat("&{0}={1}", AwsV4SignatureCalculator.X_Amz_Date, UrlHelper.UrlEncode(dateTimeStamp));
             queryParams.AppendFormat("&{0}={1}", AwsV4SignatureCalculator.X_Amz_Expires, UrlHelper.UrlEncode(period.ToString()));
             queryParams.AppendFormat("&{0}={1}", AwsV4SignatureCalculator.X_Amz_SignedHeaders, UrlHelper.UrlEncode("host"));
@@ -216,7 +225,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
 
             string[] headers = { "host" };
 
-            AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey);
+            AwsV4SignatureCalculator calculator = new AwsV4SignatureCalculator(_secretKey, _service, _region);
             string signature = calculator.CalculateSignatureAsync(requestMessage, headers, requestDateTime, true).Result;
 
             var urlBuilder = new StringBuilder(endpointUri.ToString());

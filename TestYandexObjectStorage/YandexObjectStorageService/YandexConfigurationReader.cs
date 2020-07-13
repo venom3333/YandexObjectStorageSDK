@@ -20,7 +20,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             services.Configure<YandexStorageOptions>(options =>
             {
                 options.BucketName = readedOptions.BucketName;
-                options.Location = readedOptions.Location;
+                options.Region = readedOptions.Region;
                 options.AccessKey = readedOptions.AccessKey;
                 options.SecretKey = readedOptions.SecretKey;
                 options.Endpoint = readedOptions.Endpoint;

@@ -36,8 +36,8 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         public AwsV4SignatureCalculator(string awsSecretKey, string service = null, string region = null)
         {
             _awsSecretKey = awsSecretKey;
-            _service = service ?? "s3";
-            _region = region ?? YandexStorageDefaults.Location;
+            _service = service ?? YandexStorageDefaults.Service;
+            _region = region ?? YandexStorageDefaults.Region;
         }
 
         /// <summary>

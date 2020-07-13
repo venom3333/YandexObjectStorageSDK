@@ -20,40 +20,55 @@ namespace TestYandexObjectStorage
             Console.WriteLine(isSuccess);
 
             // for upload
-            var filename = "test_file2.mp4";
+            var filename = "test_file6.mp4";
             var filePath = Path.Combine(@"K:\FTP\Video", filename);
 
             // for download
-            var downloadFileName = "b8229776-4314-4e30-a1fb-9fe6c9b2282c_2020_07_10_05_32_30";
-            var downloadUri = new UriBuilder(YandexStorageDefaults.Protocol, YandexStorageDefaults.EndPoint)
+            var downloadFileName = "download_file.mp4";
+            var uploadedFileUrl = "";
+
+            // UPLOAD STREAMED TEST
+            using (FileStream fs = new FileStream(filePath, FileMode.Open))
             {
-                Path = Path.Combine(bucket, downloadFileName)
-            };
+                var fileGuid = $"{Guid.NewGuid()}_{filename}";
+                uploadedFileUrl = await yandexService.PutObjectAsync(fs, fileGuid);
+                Console.WriteLine(uploadedFileUrl);
+            }
+
+            // UPLOAD BYTES TEST
+            using (FileStream fs = new FileStream(filePath, FileMode.Open))
+            {
+                var fileGuid = $"{Guid.NewGuid()}_{filename}";
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    await fs.CopyToAsync(ms);
+                    uploadedFileUrl = await yandexService.PutObjectAsync(ms.ToArray(), fileGuid);
+                }
+                Console.WriteLine(uploadedFileUrl);
+            }
 
 
-            // UPLOAD TEST
-            //using (FileStream fs = new FileStream(filePath, FileMode.Open))
-            //{
-            //    var fileGuid = $"{Guid.NewGuid()}_{filename}";
-            //    var sss = await yandexService.PutObjectAsync(fs, fileGuid);
-            //    Console.WriteLine(sss);
-            //}
+            // DOWNLOAD STREAMED TEST
+            using (FileStream fsDownload = File.Create(downloadFileName))
+            {
+                var result = await yandexService.GetAsStreamAsync(uploadedFileUrl.ToString());
+                await result.CopyToAsync(fsDownload);
+            }
 
-
-            // DOWNLOAD TEST
-            //using (FileStream fsDownload = File.Create("test_file.mp4"))
-            //{
-            //    var result = await yandexService.GetAsStreamAsync(downloadUri.ToString());
-            //    await result.CopyToAsync(fsDownload);
-            //}
-
-            // DELETE TEST
-            //    var deleteResult = await yandexService.DeleteObjectAsync(downloadFileName);
-            //  Console.WriteLine(deleteResult);
+            // DOWNLOAD BYTES TEST
+            using (FileStream fsDownload = File.Create(downloadFileName))
+            {
+                var result = await yandexService.GetAsByteArrayAsync(uploadedFileUrl.ToString());
+                await fsDownload.WriteAsync(result);
+            }
 
             // PRESIGNED URL TEST
-            var presignedUrl = yandexService.GetPresignedUrlAsync(downloadUri.ToString(), TimeSpan.FromHours(1));
+            var presignedUrl = yandexService.GetPresignedUrlAsync(uploadedFileUrl.ToString(), TimeSpan.FromHours(3));
             Console.WriteLine(presignedUrl);
+
+            // DELETE TEST
+            var deleteResult = await yandexService.DeleteObjectAsync(uploadedFileUrl);
+            Console.WriteLine(deleteResult);
 
             Console.ReadKey();
         }

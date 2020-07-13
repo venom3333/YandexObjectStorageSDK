@@ -17,8 +17,9 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             SecretKey = section.GetSection("SecretKey").Value;
 
             Protocol = section.GetSection("Protocol")?.Value ?? YandexStorageDefaults.Protocol;
-            Location = section.GetSection("Location")?.Value ?? YandexStorageDefaults.Location;
-            Endpoint = section.GetSection("Endpoint")?.Value ?? YandexStorageDefaults.EndPoint;
+            Region = section.GetSection("Region")?.Value ?? YandexStorageDefaults.Region;
+            Endpoint = section.GetSection("Endpoint")?.Value ?? YandexStorageDefaults.Endpoint;
+            Service = section.GetSection("Service")?.Value ?? YandexStorageDefaults.Service;
         }
         
         /// <summary>
@@ -31,8 +32,9 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
         /// </summary>
         public string BucketName { get; set; }
         
-        public string Location { get; set; } = YandexStorageDefaults.Location;
-        public string Endpoint { get; set; } = YandexStorageDefaults.EndPoint;
+        public string Region { get; set; } = YandexStorageDefaults.Region;
+        public string Endpoint { get; set; } = YandexStorageDefaults.Endpoint;
+        public string Service { get; set; } = YandexStorageDefaults.Service;
         
         /// <summary>
         /// https://cloud.yandex.ru/docs/storage/s3/
