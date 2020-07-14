@@ -25,6 +25,8 @@ namespace YandexObjectStorageService
                 options.SecretKey = readedOptions.SecretKey;
                 options.Endpoint = readedOptions.Endpoint;
                 options.Protocol = readedOptions.Protocol;
+                options.Service = readedOptions.Service;
+                options.SubPath = readedOptions.SubPath;
             });
 
             return services;

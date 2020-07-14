@@ -20,7 +20,7 @@ namespace YandexObjectStorageService
             Region = section.GetSection("Region")?.Value ?? YandexStorageDefaults.Region;
             Endpoint = section.GetSection("Endpoint")?.Value ?? YandexStorageDefaults.Endpoint;
             Service = section.GetSection("Service")?.Value ?? YandexStorageDefaults.Service;
-            Service = section.GetSection("SupPath")?.Value ?? YandexStorageDefaults.SupPath;
+            SubPath = section.GetSection("SupPath")?.Value ?? YandexStorageDefaults.SupPath;
         }
         
         /// <summary>
