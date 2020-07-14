@@ -2,7 +2,7 @@ using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace TestYandexObjectStorage.YandexObjectStorageService
+namespace YandexObjectStorageService
 {
     public static class YandexStorageExtension
     {
@@ -12,7 +12,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             if (setupAction == null) throw new ArgumentNullException(nameof(setupAction));
 
             services.Configure(setupAction);
-            services.AddTransient<YandexStorageService>();
+            services.AddTransient<IYandexStorageService, YandexStorageService>();
         }
         
         public static void AddYandexObjectStorage(this IServiceCollection services, IConfiguration configuration, string sectionName = YandexConfigurationDefaults.DefaultSectionName)
@@ -20,7 +20,7 @@ namespace TestYandexObjectStorage.YandexObjectStorageService
             if (services == null) throw new ArgumentNullException(nameof(services));
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             
-            services.LoadYandexStorageOptions(configuration, sectionName).AddTransient<YandexStorageService>();
+            services.LoadYandexStorageOptions(configuration, sectionName).AddTransient<IYandexStorageService, YandexStorageService>();
         }
 
         public static YandexStorageService CreateYandexObjectService(this YandexStorageOptions options)

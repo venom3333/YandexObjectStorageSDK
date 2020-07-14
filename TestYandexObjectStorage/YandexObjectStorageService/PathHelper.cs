@@ -1,7 +1,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace TestYandexObjectStorage.YandexObjectStorageService
+namespace YandexObjectStorageService
 {
     public static class PathHelper
     {

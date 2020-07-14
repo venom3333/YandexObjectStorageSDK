@@ -8,9 +8,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.Options;
 
-using YandexObjectStorageService;
-
-namespace TestYandexObjectStorage.YandexObjectStorageService
+namespace YandexObjectStorageService
 {
     public class YandexStorageService : IYandexStorageService
     {

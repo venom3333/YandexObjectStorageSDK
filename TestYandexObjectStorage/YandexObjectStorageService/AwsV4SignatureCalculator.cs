@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
 
-namespace TestYandexObjectStorage.YandexObjectStorageService
+namespace YandexObjectStorageService
 {
     public class AwsV4SignatureCalculator
     {

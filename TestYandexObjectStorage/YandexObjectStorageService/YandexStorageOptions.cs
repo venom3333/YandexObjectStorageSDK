@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace TestYandexObjectStorage.YandexObjectStorageService
+namespace YandexObjectStorageService
 {
     public class YandexStorageOptions
     {

@@ -1,4 +1,4 @@
-namespace TestYandexObjectStorage.YandexObjectStorageService
+namespace YandexObjectStorageService
 {
     public static class YandexConfigurationDefaults
     {
