@@ -12,7 +12,7 @@ using YandexObjectStorageService;
 
 namespace TestYandexObjectStorage.YandexObjectStorageService
 {
-    public class YandexStorageService
+    public class YandexStorageService : IYandexStorageService
     {
         private readonly string _protocol;
         private readonly string _bucketName;
