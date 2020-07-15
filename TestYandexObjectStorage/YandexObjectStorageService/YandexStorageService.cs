@@ -365,7 +365,7 @@ namespace YandexObjectStorageService
 
         private string FormatePath(string path)
         {
-            return path.RemoveProtocol(_protocol).RemoveEndPoint(_endpoint).RemoveBucket(_bucketName).RemoveSubPath(_supPath);
+            return path.RemoveProtocol(_protocol).RemoveEndPoint(_endpoint).RemoveBucket(_bucketName).RemoveSubPath(_supPath).RemoveSpecialChars();
         }
 
         /// <summary>
