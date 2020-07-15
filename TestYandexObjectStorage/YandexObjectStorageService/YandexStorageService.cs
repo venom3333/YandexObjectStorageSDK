@@ -316,7 +316,7 @@ namespace YandexObjectStorageService
         /// <returns>Direct link to an object</returns>
         public async Task<string> PutObjectAsync(Stream stream, string filename)
         {
-            var formatedPath = FormatePath(filename);
+            var formatedPath = FormatePath(filename, true);
 
             var requestMessage = await PreparePutRequestAsync(stream, formatedPath);
 
@@ -343,7 +343,7 @@ namespace YandexObjectStorageService
         /// <returns>Direct link to an object</returns>
         public async Task<string> PutObjectAsync(byte[] byteArr, string filename)
         {
-            var formatedPath = FormatePath(filename);
+            var formatedPath = FormatePath(filename, true);
 
             var requestMessage = await PreparePutRequestAsync(byteArr, formatedPath);
 
@@ -363,9 +363,10 @@ namespace YandexObjectStorageService
         }
 
 
-        private string FormatePath(string path)
+        private string FormatePath(string path, bool isPut = false)
         {
-            return path.RemoveProtocol(_protocol).RemoveEndPoint(_endpoint).RemoveBucket(_bucketName).RemoveSubPath(_supPath).RemoveSpecialChars();
+            path = path.RemoveProtocol(_protocol).RemoveEndPoint(_endpoint).RemoveBucket(_bucketName).RemoveSubPath(_supPath);
+            return isPut ? path.RemoveSpecialChars() : path;
         }
 
         /// <summary>
