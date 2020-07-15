@@ -7,7 +7,7 @@ namespace YandexObjectStorageService
     {
         public static string RemoveSpecialChars(this string path)
         {
-            return Regex.Replace(path, "[^a-zA-Z0-9/.-]", "_");
+            return Regex.Replace(path, "[^а-яА-Яa-zA-Z0-9/.-]", "_");
         }
 
         public static string RemoveProtocol(this string path, string protocol)
