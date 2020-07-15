@@ -64,7 +64,7 @@ namespace TestYandexObjectStorage
             }
 
             // PRESIGNED URL TEST
-            var presignedUrl = yandexService.GetPresignedUrlAsync(uploadedFileUrl.ToString(), TimeSpan.FromHours(3));
+            var presignedUrl = yandexService.GetPresignedUrl(uploadedFileUrl.ToString(), TimeSpan.FromHours(3));
             Console.WriteLine(presignedUrl);
 
             // DELETE TEST

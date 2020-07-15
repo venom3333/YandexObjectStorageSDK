@@ -190,7 +190,7 @@ namespace YandexObjectStorageService
         /// </summary>
         /// <param name="v"></param>
         /// <returns></returns>
-        public string GetPresignedUrlAsync(string filename, TimeSpan expirationTime = default)
+        public string GetPresignedUrl(string filename, TimeSpan expirationTime = default)
         {
             if (expirationTime == default)
             {
