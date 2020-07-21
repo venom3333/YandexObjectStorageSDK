@@ -11,6 +11,10 @@ services.AddYandexObjectStorage(options =>
 });
 ```
 
+```
+services.AddYandexObjectStorage(Configuration);
+```
+
 Через файл конфигурации `appsettings.json`:
 по умолчанию читает секцию `YandexObjectStorage`, например:
 
@@ -24,5 +28,12 @@ services.AddYandexObjectStorage(options =>
   }
 ```
 
+```
 Все доступные опции см. непосредственно в файле YandexStorageOptions.cs
+```
+
+```
 Умолчания опций см. в файле YandexStorageDefaults.cs
+```
+
+Примеры см. в Program.cs
